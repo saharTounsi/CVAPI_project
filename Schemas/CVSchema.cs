@@ -6,7 +6,9 @@ namespace CVAPI.Schemas {
         
         [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string id { get; set; }
-       
+
+        [Required]
+        public string? name {get;set;}
 
         [Required]
         public DateTime datetime { get; set; }

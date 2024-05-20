@@ -1,10 +1,8 @@
-﻿using Azure;
+﻿using CVAPI.Data;
 using CVAPI.Interfaces;
 using CVAPI.Schemas;
-using CVAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
-using CVAPI.Models;
+using RouteAttribute=Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 
 namespace CVAPI.Controllers {
@@ -23,11 +21,16 @@ namespace CVAPI.Controllers {
         }
 
         [HttpPost("upload")]
-        [ProducesResponseType(200,Type=typeof(string))]
+        [ProducesResponseType(200,Type=typeof(CVData))]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UploadCV(IFormFile file){
-            var client = new RestClient("http://127.0.0.1:5000");
-            var request = new RestRequest("/ask", Method.Post);
-            return Ok(file.FileName);
+            try{
+                CVData cvdata=await CVAnalyser.analyseCV(file);
+                return Ok(cvdata);
+            }
+            catch(Exception exception){
+                return BadRequest(exception.Message);
+            }
         }
 
 

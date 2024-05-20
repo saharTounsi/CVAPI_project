@@ -52,7 +52,7 @@ namespace CVAPI.Data.Seeder {
             },
 
         };
-       public static List<CVExport> cvEports=new List<CVExport>(){
+       public static List<CVExport> cvExports=new List<CVExport>(){
             new(){
                 id="0",
                 name="sahar Tounsi",
@@ -74,7 +74,6 @@ namespace CVAPI.Data.Seeder {
                 exporterId="2",
                 datetime=DateTime.Now,
             },
-
         };
         public static List<CVModif> cvModifs=new List<CVModif>(){
             new(){
@@ -94,29 +93,27 @@ namespace CVAPI.Data.Seeder {
                 cvId="2",
                 editorId="2",
                 datetime=DateTime.Now,
-             },
+            },
         };
-         public static List<CVVersion> cvVersions=new List<CVVersion>(){
+        public static List<CVVersion> cvVersions=new List<CVVersion>(){
             new(){
-                 id="0",
-                 cvId="0",
-                 datetime=DateTime.Now,
+                id="0",
+                cvId="0",
+                datetime=DateTime.Now,
                 path="c:0"
             },
-             new(){
-                 id="1",
-                 cvId="1",
-                 datetime=DateTime.Now,
-                  path="c:1"
-             },
-              new(){
-                 id="2",
-                 cvId="2",
-                 datetime=DateTime.Now,
-                  path="c:2"
-              },
-         };
-
-
+            new(){
+               id="1",
+               cvId="1",
+               datetime=DateTime.Now,
+               path="c:1"
+            },
+            new(){
+              id="2",
+              cvId="2",
+              datetime=DateTime.Now,
+              path="c:2"
+            },
+        };
     }
 }
