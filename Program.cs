@@ -16,6 +16,7 @@ builder.Services.AddScoped<ICVRep,CVRep>();
 builder.Services.AddScoped<IUserRep,UserRep>();
 builder.Services.AddScoped<ICVVersionRep,CVVersionRep>();
 builder.Services.AddScoped<ICVExportRep,CVExportRep>();
+builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<DataContext>(options=>{

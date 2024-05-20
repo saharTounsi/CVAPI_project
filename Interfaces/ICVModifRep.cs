@@ -3,11 +3,9 @@ using CVAPI.Schemas;
 
 
 namespace CVAPI.Interfaces {
-
-
     public interface ICVModifRep {
 
-        Task<CV> GetcvModifCV(string CVId); 
+        Task<User> GetCVModifEditor(string cvModifId); 
     }
 }
    

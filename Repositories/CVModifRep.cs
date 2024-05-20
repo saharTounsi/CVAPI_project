@@ -25,5 +25,12 @@ namespace CVAPI.Repositories {
             }
             else return null;
         }
+
+        public async Task<User> GetCVModifEditor(string cvModifId){
+            var cvModif=await context.FindAsync<CVModif>(cvModifId);
+            var editorId=cvModif.editorId;
+            var editor=await context.users.FirstAsync(user=>user.id==editorId);
+            return editor;
+        }
     }
 }
