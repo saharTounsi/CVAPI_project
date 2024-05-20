@@ -14,7 +14,6 @@ namespace CVAPI.Models {
         public string currentVersionId { get; set; }
 
         
-
         //Relationships
         [JsonIgnore] [ForeignKey("id")]
         public User user { get; set; }
