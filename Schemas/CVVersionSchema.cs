@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CVAPI.Data;
+using CVAPI.Data.CVAnalysis;
 
 
 namespace CVAPI.Schemas {

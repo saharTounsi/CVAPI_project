@@ -1,6 +1,6 @@
-﻿using CVAPI.Data;
+﻿using CVAPI.Schemas;
 using CVAPI.Interfaces;
-using CVAPI.Schemas;
+using CVAPI.Data.CVAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using RouteAttribute=Microsoft.AspNetCore.Mvc.RouteAttribute;
 
