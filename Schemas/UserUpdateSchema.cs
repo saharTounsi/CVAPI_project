@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using CVAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace CVAPI.Schemas {

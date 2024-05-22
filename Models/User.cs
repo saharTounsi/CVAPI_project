@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using CVAPI.Schemas;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace CVAPI.Models {
@@ -9,9 +10,7 @@ namespace CVAPI.Models {
         //Props
 
         public User(){}
-        public User(UserSignUpSchema data):base(data){
-
-        }
+        public User(UserSignUpSchema data):base(data){}
 
         //Relationships
         [JsonIgnore]

@@ -12,22 +12,21 @@ using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using CVAPI.Services;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace CVAPI.Controllers
-{
-
+namespace CVAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : Controller {
         
         private readonly IUserRep userRep;
         private readonly HttpContext context;
-        private readonly AuthService authService;
 
 
-        public UserController(IUserRep userRep,IHttpContextAccessor httpContextAccessor,AuthService authService){
+        public UserController(IUserRep userRep,IHttpContextAccessor httpContextAccessor){
             this.userRep=userRep;
-            this.authService=authService;
             this.context=httpContextAccessor.HttpContext!;           
         }
 
@@ -39,7 +38,6 @@ namespace CVAPI.Controllers
             var users=userRep.GetUsers(id);
             return Ok(users);
         }
-
 
         [HttpPost("signup")]
         //[Authorize(Roles="User")]
@@ -58,8 +56,13 @@ namespace CVAPI.Controllers
             try{
                 var user=await userRep.FindByCredentials(data);
                 if(user!=null){
-                    var authData=authService.logUserIn(user);
-                    return Ok(authData);
+                    var claims=new List<Claim>{new(ClaimTypes.Name,data.email)};
+                    var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+                    await context.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(identity)
+                    );
+                    return Ok(new AuthData(){userId=user.id}); 
                 }
                 else throw new Exception("unrecognized user");
             }
@@ -68,20 +71,36 @@ namespace CVAPI.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        [ProducesResponseType(200,Type=typeof(bool))]
+        [ProducesResponseType(400)]
+        //[Authorize("")]
+        public async Task<IActionResult> logout([FromBody] UserCredentials data){
+            try{
+                var isAuthenticated=context.User.Identity!.IsAuthenticated;
+                if(isAuthenticated){
+                    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return Ok(true);
+                }
+                else throw new Exception("unknown session");
+            }
+            catch(Exception exception){
+                return BadRequest(exception.Message);
+            }
+        }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult> DeleteUser(string id){
             var user=await userRep.DeleteUser(id);
-            return Ok (true);
-            
+            return Ok(true);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult>UpdateUser(string id,[FromBody] UserUpdateSchema data){
-           var user=await userRep.UpdateUser(id ,data);
-           return Ok (true);
+           var user=await userRep.UpdateUser(id,data);
+           return Ok(true);
         }
     }
 }

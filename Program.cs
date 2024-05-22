@@ -4,6 +4,9 @@ using CVAPI.Interfaces;
 using CVAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 using CVAPI.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using CVAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 
 var builder=WebApplication.CreateBuilder(args);
@@ -17,11 +20,18 @@ builder.Services.AddScoped<ICVVersionRep,CVVersionRep>();
 builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDataProtection();
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddDbContext<DataContext>(options=>{
     options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
+/* builder.Services.AddDataProtection();
+builder.Services.AddScoped<AuthService>(); */
+const string AuthenticationSchema=CookieAuthenticationDefaults.AuthenticationScheme;
+builder.Services.AddAuthentication(options=>{
+    options.DefaultAuthenticateScheme=AuthenticationSchema;
+    options.DefaultSignInScheme=AuthenticationSchema;
+    options.DefaultChallengeScheme=AuthenticationSchema;
+}).AddCookie();
+builder.Services.AddAuthorization();
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -42,8 +52,8 @@ if(isDevEnv){
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-/* app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers(); */
+app.MapControllers();
 app.Run();
