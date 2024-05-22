@@ -55,12 +55,17 @@ namespace CVAPI.Controllers
         [ProducesResponseType(200,Type=typeof(AuthData))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> login([FromBody] UserCredentials data){
-            var user=await userRep.FindByCredentials(data);
-            if(user!=null){
-                var authData=authService.logUserIn(user);
-                return Ok(authData);
+            try{
+                var user=await userRep.FindByCredentials(data);
+                if(user!=null){
+                    var authData=authService.logUserIn(user);
+                    return Ok(authData);
+                }
+                else throw new Exception("unrecognized user");
             }
-            else return BadRequest("unrecognized user");
+            catch(Exception exception){
+                return BadRequest(exception.Message);
+            }
         }
 
 

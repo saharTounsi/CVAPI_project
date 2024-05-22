@@ -23,7 +23,8 @@ namespace CVAPI.Services {
             var userId=user.id;
             var sessionId="session_id";
             var protector=dataProtectionProvider.CreateProtector(protectorPurpose);
-            httpContext.Response.Headers["set-cookie"]=$"userId={protector.Protect(userId)};sessionId={protector.Protect(sessionId)}";
+            httpContext.Response.Headers["set-cookie"]=$"userId={protector.Protect(userId)};httpOnly=true;secure=true";
+            httpContext.Response.Headers["set-cookie"]=$"sessionId={protector.Protect(sessionId)};httpOnly=true;secure=true";
             return new AuthData(){
                 userId=userId,
                 sessionId=sessionId,

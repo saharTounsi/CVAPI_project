@@ -23,14 +23,18 @@ namespace CVAPI.Repositories
         public async Task<User?> FindByCredentials(UserCredentials credentials){
             string userEmail=credentials.email;
             string userPassword=credentials.password;
-            var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.password==userPassword));
-            return user;
+            try{
+                var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.password==userPassword));
+                return user;
+            }
+            catch(Exception exception){
+                return null;
+            }
         } 
 
-        public async Task<User> CreateUser(UserSignUpSchema data)
-        {
+        public async Task<User> CreateUser(UserSignUpSchema data){
             var user=new User(data);
-            await context.AddAsync<User>(user);
+            await context.AddAsync(user);
             await context.SaveChangesAsync();
             return user;
         }
@@ -38,7 +42,7 @@ namespace CVAPI.Repositories
         public async Task<User?> DeleteUser(string userId){
             var user=await context.FindAsync<User>(userId);
             if(user!=null){
-                context.Remove<User>(user);
+                context.Remove(user);
                 await context.SaveChangesAsync();
             }
             return user;
