@@ -20,6 +20,12 @@ namespace CVAPI.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<User?> FindByCredentials(UserCredentials credentials){
+            string userEmail=credentials.email;
+            string userPassword=credentials.password;
+            var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.password==userPassword));
+            return user;
+        } 
 
         public async Task<User> CreateUser(UserSignUpSchema data)
         {

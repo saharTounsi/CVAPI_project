@@ -8,6 +8,7 @@ namespace CVAPI.Interfaces
         Task<User> CreateUser(UserSignUpSchema data);
         Task<User?> DeleteUser(string userId);
         Task<User> UpdateUser(string userId,UserUpdateSchema data);
+        Task<User?> FindByCredentials(UserCredentials credentials);
         //bool save(); 
     }
 }

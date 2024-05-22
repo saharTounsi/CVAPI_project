@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 
 namespace CVAPI.Schemas {
-    public class UserLogInSchema {
+    public class AuthData {
         
         [Required]
-        public string email { get; set; }
+        public string userId { get; set; }
 
         [Required]
-        public string password { get; set; }
+        public string sessionId { get; set; }
     }
 }
         

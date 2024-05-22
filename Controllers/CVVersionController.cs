@@ -14,7 +14,7 @@ namespace CVAPI.Controllers {
 
     [Route("api/[controller]")]
     [ApiController]
-    public class CVVersionController: Controller {
+    public class CVVersionController : Controller {
          private readonly DataContext context;
         public CVVersionController(DataContext dataContext) {
             context = dataContext;
