@@ -1,17 +1,7 @@
 ﻿
 using CVAPI.Interfaces;
-using CVAPI.Models;
-using CVAPI.Repositories;
-using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using CVAPI.Data;
 using CVAPI.Schemas;
-using Microsoft.AspNetCore.Authorization;
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using CVAPI.Services;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
