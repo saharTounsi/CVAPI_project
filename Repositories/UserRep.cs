@@ -16,6 +16,16 @@ namespace CVAPI.Repositories
             context=dataContext;
         }
         
+        public async Task<User?> GetUser(string userId){
+            try{
+                var user=await context.users.FirstAsync(user=>user.id==userId);
+                return user;
+            }
+            catch(Exception exception){
+                return null;
+            }
+        }
+
         public List<UserSchema> GetUsers(string adminid){
             throw new NotImplementedException();
         }

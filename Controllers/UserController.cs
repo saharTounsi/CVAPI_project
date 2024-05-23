@@ -46,7 +46,7 @@ namespace CVAPI.Controllers {
             try{
                 var user=await userRep.FindByCredentials(data);
                 if(user!=null){
-                    var claims=new List<Claim>{new(ClaimTypes.Name,data.email)};
+                    var claims=new List<Claim>{new(ClaimTypes.Name,user.id)};
                     var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
                     await context.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
@@ -55,6 +55,23 @@ namespace CVAPI.Controllers {
                     return Ok(new AuthData(){userId=user.id}); 
                 }
                 else throw new Exception("unrecognized user");
+            }
+            catch(Exception exception){
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [HttpPost("/")]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult> GetUser([FromBody] AuthData data){
+            try{
+                var isAuthenticated=context.User.Identity!.IsAuthenticated;
+                if(isAuthenticated){
+                    data.userId??=context.User.Identity.Name!;
+                    var user=await userRep.GetUser(data.userId);
+                    return Ok(user==null?null:new UserSchema(user));
+                }
+                else throw new Exception("unknown session");
             }
             catch(Exception exception){
                 return BadRequest(exception.Message);

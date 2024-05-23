@@ -7,7 +7,6 @@ namespace CVAPI.Schemas {
         [Required]
         public string userId { get; set; }
 
-        [Required]
         public string sessionId { get; set; }
     }
 }
