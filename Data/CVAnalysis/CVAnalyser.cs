@@ -6,7 +6,7 @@ namespace CVAPI.Data.CVAnalysis {
     public class CVAnalyser {
 
         public static readonly List<string> supportedTypes=["application/pdf"];
-        private static readonly RestClient client=new RestClient("http://5241-34-125-43-98.ngrok-free.app:5000");
+        private static readonly RestClient client=new RestClient("http://7b0a-34-125-43-98.ngrok-free.app");
 
         public static async Task<CVData> analyseCV(IFormFile formFile){
             Dictionary<string,string> fileProps=await saveFormFile(formFile);
