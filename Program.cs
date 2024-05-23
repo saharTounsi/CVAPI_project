@@ -7,6 +7,7 @@ using CVAPI.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using CVAPI.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 
 var builder=WebApplication.CreateBuilder(args);
@@ -21,10 +22,18 @@ builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<DataContext>(options=>{
-    options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
 /* builder.Services.AddDataProtection();
 builder.Services.AddScoped<AuthService>(); */
+var AllowSpecificOrigin="AllowSpecificOrigin";
+builder.Services.AddCors(options=>{
+    options.AddPolicy(AllowSpecificOrigin,policy=>{
+        policy.WithOrigins("*");
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
 const string AuthenticationSchema=CookieAuthenticationDefaults.AuthenticationScheme;
 builder.Services.AddAuthentication(options=>{
     options.DefaultAuthenticateScheme=AuthenticationSchema;
@@ -56,4 +65,5 @@ if(isDevEnv){
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors(AllowSpecificOrigin);
 app.Run();
