@@ -1,3 +1,4 @@
+using System.Text.Json;
 using RestSharp;
 
 
@@ -5,14 +6,14 @@ namespace CVAPI.Data.CVAnalysis {
     public class CVAnalyser {
 
         public static readonly List<string> supportedTypes=["application/pdf"];
-        private static readonly RestClient client=new RestClient("http://127.0.0.1:5000");
+        private static readonly RestClient client=new RestClient("http://5241-34-125-43-98.ngrok-free.app:5000");
 
         public static async Task<CVData> analyseCV(IFormFile formFile){
             Dictionary<string,string> fileProps=await saveFormFile(formFile);
             var fileName=fileProps["fileName"];
             var filePath=fileProps["filePath"];
             //var client=new RestClient("http://127.0.0.1:5000");
-            var request=new RestRequest("/analyse",Method.Post){
+            var request=new RestRequest("/upload",Method.Post){
                 AlwaysMultipartFormData=true,
             };
             request.AddHeader("Content-Type","multipart/form-data");
@@ -22,7 +23,9 @@ namespace CVAPI.Data.CVAnalysis {
             });
             var response=await client.PostAsync(request);
             if(response.IsSuccessStatusCode){
-                return new CVData(){profileName=fileName,profileEmail=filePath};
+               var responseBody = response.Content;
+               var cvData = JsonSerializer.Deserialize<CVData>(responseBody);
+               return cvData;
             }
             else throw new Exception("could not upload file "+response.StatusCode+".");
             //request.AddParameter("Project", refdoc.Title); 
@@ -55,9 +58,11 @@ namespace CVAPI.Data.CVAnalysis {
     }
 
     public class CVData {
-        public string? profileName {get;set;}
-        public string? profileEmail {get;set;}
-        public string? profileTel {get;set;}
-        //email compétences expériences tel 
+        public string? email {get;set;}
+        public string? competences {get;set;}
+        public string? experience {get;set;}
+        public string? nom {get;set;}
+        public string? telephone {get;set;}
+
     }
 };
