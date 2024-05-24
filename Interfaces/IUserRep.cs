@@ -5,7 +5,7 @@ namespace CVAPI.Interfaces
 {
     public interface IUserRep {
         List<UserSchema> GetUsers(string adminid);
-        Task<User> CreateUser(UserSignUpSchema data);
+        Task<User> CreateUser(NewUserSchema data);
         Task<User?> DeleteUser(string userId);
         Task<User> UpdateUser(string userId,UserUpdateSchema data);
         Task<User?> FindByCredentials(UserCredentials credentials);

@@ -14,6 +14,13 @@ namespace CVAPI.Repositories
             context=dataContext;
         }
         
+        public async Task<User> AddUser(NewUserSchema data){
+            var user=new User(data);
+            context.Add(user);
+            await context.SaveChangesAsync();
+            return user;
+        } 
+
         public async Task<User?> GetUser(string userId){
             try{
                 var user=await context.users.FirstAsync(user=>user.id==userId);
@@ -41,7 +48,7 @@ namespace CVAPI.Repositories
             }
         } 
 
-        public async Task<User> CreateUser(UserSignUpSchema data){
+        public async Task<User> CreateUser(NewUserSchema data){
             var user=new User(data);
             await context.AddAsync(user);
             await context.SaveChangesAsync();

@@ -5,7 +5,7 @@ using CVAPI.Models;
 
 
 namespace CVAPI.Schemas {
-    public class UserSchema:UserSignUpSchema {
+    public class UserSchema:NewUserSchema {
 
         [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string id { get; set; }
@@ -17,7 +17,7 @@ namespace CVAPI.Schemas {
         public bool isActive {get;set;}=true;
 
         public UserSchema(){}
-        public UserSchema(UserSignUpSchema data){
+        public UserSchema(NewUserSchema data){
             email=data.email;
             firstName=data.firstName;
             lastName=data.lastName;

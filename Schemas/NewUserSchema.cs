@@ -4,7 +4,7 @@ using CVAPI.Models;
 
 
 namespace CVAPI.Schemas {
-    public class UserSignUpSchema {
+    public class NewUserSchema {
         [Required]
         public string firstName {get;set;}
 

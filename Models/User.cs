@@ -12,7 +12,7 @@ namespace CVAPI.Models {
         public string hash {get;set;}
 
         public User(){}
-        public User(UserSignUpSchema data):base(data){}
+        public User(NewUserSchema data):base(data){}
 
         //Relationships
         [JsonIgnore]
@@ -26,5 +26,11 @@ namespace CVAPI.Models {
 
 
         public enum Role {Employee,HR,Manager};
+
+        static public string getHash(User user){
+            const string password="1234";
+            var hasher=new PasswordHasher<User>();
+            
+        }
     }
 }
