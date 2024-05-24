@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using CVAPI.Models;
@@ -9,21 +10,27 @@ namespace CVAPI.Schemas {
         [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string id { get; set; }
 
-        public string? adminId { get; set; }
+        [DefaultValue(false)]
+        public bool isAdmin {get;set;}=false;
+
+        [DefaultValue(true)]
+        public bool isActive {get;set;}=true;
 
         public UserSchema(){}
         public UserSchema(UserSignUpSchema data){
             email=data.email;
-            password=data.password;
-            name=data.name;
+            firstName=data.firstName;
+            lastName=data.lastName;
             role=data.role;
         }
         
         public UserSchema(User user){
             id=user.id;
-            adminId=user.adminId;
+            isAdmin=user.isAdmin;
+            isActive=user.isActive;
             email=user.email;
-            name=user.name;
+            firstName=user.firstName;
+            lastName=user.lastName;
             role=user.role;
         }
     }

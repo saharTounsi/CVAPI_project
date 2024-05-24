@@ -10,13 +10,11 @@ using CVAPI.Repositories;
 
 
 namespace CVAPI.Controllers {
-    [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] [Route("api/cvexport")]
     public class CVExportController:Controller 
     {
         private readonly ICVExportRep cvExportRep;
         private readonly HttpContext context;
-
 
         public CVExportController(ICVExportRep cvExportRep,IHttpContextAccessor httpContextAccessor){
             this.cvExportRep=cvExportRep;

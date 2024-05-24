@@ -12,44 +12,31 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 
 var builder=WebApplication.CreateBuilder(args);
 bool isDevEnv=builder.Environment.IsDevelopment();
+bool useSwagger=builder.Configuration.GetValue("useSwagger",true);
 
 //Services
 builder.Services.AddControllers();
 builder.Services.AddScoped<ICVRep,CVRep>(); 
-builder.Services.AddScoped<IUserRep,UserRep>();
+builder.Services.AddScoped<UserRep>();
 builder.Services.AddScoped<ICVVersionRep,CVVersionRep>();
 builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<DataContext>(options=>{
-    options.UseSqlServer(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
-/* builder.Services.AddDataProtection();
-builder.Services.AddScoped<AuthService>(); */
-var AllowSpecificOrigin="AllowSpecificOrigin";
-builder.Services.AddCors(options=>{
-    options.AddPolicy(AllowSpecificOrigin,policy=>{
-        policy.WithOrigins("*");
-        policy.AllowAnyHeader();
-        policy.AllowAnyMethod();
-    });
-});
+if(isDevEnv&&useSwagger) builder.Services.AddSwaggerGen();
+
 const string AuthenticationSchema=CookieAuthenticationDefaults.AuthenticationScheme;
 builder.Services.AddAuthentication(options=>{
     options.DefaultAuthenticateScheme=AuthenticationSchema;
     options.DefaultSignInScheme=AuthenticationSchema;
     options.DefaultChallengeScheme=AuthenticationSchema;
 }).AddCookie();
-builder.Services.AddAuthorization();
+AuthService.addAuthentication(builder);
+var corsPolicyName=SecurityService.addCors(builder);
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-
-
-if(isDevEnv){
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-    builder.Services.AddSwaggerGen();
-}
 
 //Create App
 var app=builder.Build();
@@ -58,12 +45,14 @@ var app=builder.Build();
 if(isDevEnv){
     var seeder=new Seeder(app);
     seeder.seedDatabase();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    if(useSwagger){
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 }
 //app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseCors(AllowSpecificOrigin);
+app.UseCors(corsPolicyName);
 app.Run();

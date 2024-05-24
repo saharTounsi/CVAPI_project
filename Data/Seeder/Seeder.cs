@@ -9,7 +9,7 @@ namespace CVAPI.Data.Seeder {
 
         public Seeder(WebApplication app){
             var scope=app.Services.CreateScope();
-            dropDatabase=app.Configuration.GetValue<bool>("dropDatabase");
+            dropDatabase=app.Configuration.GetValue("dropDatabase",dropDatabase);
             context=scope.ServiceProvider.GetService<DataContext>()!;
         } 
         public void seedDatabase(){ 
@@ -25,19 +25,19 @@ namespace CVAPI.Data.Seeder {
             context.SaveChanges();
         }
 
-        private void seedUsers(string tableName="users"){
+        private void seedUsers(){
             context.users.AddRange(SeederData.users);
         }  
-        private void seedCVs(string tableName="cvs"){
+        private void seedCVs(){
             context.cvs.AddRange(SeederData.cvs);
         }  
-        private void seedCVExports(string tableName="CVExports"){
+        private void seedCVExports(){
             context.cvExports.AddRange(SeederData.cvExports);
         }  
-        private void seedCVModifs(string tableName="CVMODIFs"){
+        private void seedCVModifs(){
             context.cvModifs.AddRange(SeederData.cvModifs);
         }
-        private void seedCVVersions(string tableName="CVVersions"){
+        private void seedCVVersions(){
             context.cvVersions.AddRange(SeederData.cvVersions);
         }
     }

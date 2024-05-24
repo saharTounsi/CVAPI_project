@@ -4,13 +4,18 @@ using CVAPI.Models;
 
 
 namespace CVAPI.Schemas {
-    public class UserSignUpSchema:UserUpdateSchema {
+    public class UserSignUpSchema {
+        [Required]
+        public string firstName {get;set;}
+
+        [Required]
+        public string lastName {get;set;}
+
+        [Required]
+        public string email {get;set;}
         
         [Required]
-        public string email { get; set; }
-        
-        [Required]
-        public User.Role role { get; set; }
+        public User.Role role {get;set;}
          
     }
 }

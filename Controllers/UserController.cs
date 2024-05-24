@@ -1,37 +1,27 @@
 ﻿
-using CVAPI.Interfaces;
+using CVAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using CVAPI.Schemas;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace CVAPI.Controllers {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : Controller {
+    [ApiController] [Route("api/user")]
+    public class UserController:Controller {
         
-        private readonly IUserRep userRep;
+        private readonly UserRep userRep;
         private readonly HttpContext context;
 
 
-        public UserController(IUserRep userRep,IHttpContextAccessor httpContextAccessor){
+        public UserController(UserRep userRep,IHttpContextAccessor httpContextAccessor){
             this.userRep=userRep;
             this.context=httpContextAccessor.HttpContext!;           
         }
 
-
-        [HttpGet("{id}")]
-        [ProducesResponseType(200, Type = typeof(UserSchema))]  
-        [ProducesResponseType(400)]
-        public IActionResult GetUsers(string id){
-            var users=userRep.GetUsers(id);
-            return Ok(users);
-        }
-
         [HttpPost("signup")]
-        //[Authorize(Roles="User")]
-        //[ProducesResponseType(204)]
         [ProducesResponseType(200,Type=typeof(bool))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateUser([FromBody] UserSignUpSchema data){
@@ -46,7 +36,12 @@ namespace CVAPI.Controllers {
             try{
                 var user=await userRep.FindByCredentials(data);
                 if(user!=null){
-                    var claims=new List<Claim>{new(ClaimTypes.Name,user.id)};
+                    var claims=new List<Claim>{
+                        new("id",user.id),
+                        new("email",data.email),
+                        new("isAdmin",user.isAdmin.ToString()),
+                        new("role",user.role.ToString()),
+                    };
                     var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
                     await context.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
@@ -61,27 +56,9 @@ namespace CVAPI.Controllers {
             }
         }
 
-        [HttpPost("/")]
-        [ProducesResponseType(200,Type=typeof(UserSchema))]
-        public async Task<IActionResult> GetUser([FromBody] AuthData data){
-            try{
-                var isAuthenticated=context.User.Identity!.IsAuthenticated;
-                if(isAuthenticated){
-                    data.userId??=context.User.Identity.Name!;
-                    var user=await userRep.GetUser(data.userId);
-                    return Ok(user==null?null:new UserSchema(user));
-                }
-                else throw new Exception("unknown session");
-            }
-            catch(Exception exception){
-                return BadRequest(exception.Message);
-            }
-        }
-
-        [HttpPost("logout")]
+        [HttpPost("logout")] [Authorize]
         [ProducesResponseType(200,Type=typeof(bool))]
         [ProducesResponseType(400)]
-        //[Authorize("")]
         public async Task<IActionResult> logout([FromBody] UserCredentials data){
             try{
                 var isAuthenticated=context.User.Identity!.IsAuthenticated;
@@ -96,18 +73,43 @@ namespace CVAPI.Controllers {
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpGet("all")] 
+        [Authorize] [Authorize(Policy="isAdmin")] 
+        [ProducesResponseType(200,Type=typeof(List<UserSchema>))]  
+        public async Task<IActionResult> GetUsers(){
+            var adminId=context.User.FindFirstValue("id")!;
+            var users=await userRep.GetUsers();
+            return Ok(users);
+        }
+
+        [HttpGet("")] [Authorize]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult> GetUser(){
+            var userId=context.User.FindFirst("id")!.Value;
+            var user=await userRep.GetUser(userId);
+            return Ok(user==null?null:new UserSchema(user));
+        }
+
+        [HttpGet("{userId}")] 
+        [Authorize] [Authorize(Policy="isAdmin")]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult> GetUser(string userId){
+            var user=await userRep.GetUser(userId);
+            return Ok(user==null?null:new UserSchema(user));
+        }
+
+        [HttpPost("{id}")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult> DeleteUser(string id){
             var user=await userRep.DeleteUser(id);
             return Ok(true);
         }
 
-        [HttpPut("{id}")]
+        /* [HttpPut("{id}")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult>UpdateUser(string id,[FromBody] UserUpdateSchema data){
            var user=await userRep.UpdateUser(id,data);
            return Ok(true);
-        }
+        } */
     }
 }

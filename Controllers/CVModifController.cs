@@ -10,14 +10,11 @@ using CVAPI.Schemas;
 
 
 namespace CVAPI.Controllers {
-
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CVModifController:Controller 
-    {
-         private readonly ICVModifRep cvModifRep;
+    [ApiController] [Route("api/cvmodif")]
+    public class CVModifController:Controller {
+        
+        private readonly ICVModifRep cvModifRep;
         private readonly HttpContext context;
-
     
         public CVModifController(ICVModifRep cvModifRep,IHttpContextAccessor httpContextAccessor){
             this.cvModifRep=cvModifRep;

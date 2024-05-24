@@ -1,54 +1,29 @@
-using CVAPI.Interfaces;
+using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using CVAPI.Models;
-using CVAPI.Schemas;
-using Microsoft.AspNetCore.DataProtection;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace CVAPI.Services {
-    public class AuthService {
-
-        static readonly string protectorPurpose="auth-cookie";
-            
-        private readonly HttpContext httpContext;
-        //private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IDataProtectionProvider dataProtectionProvider;
-
-        public AuthService(IHttpContextAccessor httpContextAccessor,IDataProtectionProvider dataProtectionProvider){
-            //this.httpContextAccessor=httpContextAccessor;
-            this.dataProtectionProvider=dataProtectionProvider;
-            this.httpContext=httpContextAccessor.HttpContext!;
+    public class AuthService:IAuthorizationService {
+        //readonly static string corsPolicyName="AllowSpecificOrigin";
+        public static void addAuthentication(WebApplicationBuilder builder){
+            builder.Services.AddAuthorization(options=>{
+                //options.AddPolicy("isAuthenticated",(policy)=>policy.RequireClaim());
+                options.AddPolicy("isAdmin",(policy)=>policy.RequireClaim("isAdmin","True"));
+                options.AddPolicy("isManager",(policy)=>policy.RequireClaim("role",User.Role.Manager.ToString()));
+                options.AddPolicy("isHR",(policy)=>policy.RequireClaim("role",User.Role.HR.ToString()));
+                options.AddPolicy("isEmployee",(policy)=>policy.RequireClaim("role",User.Role.Employee.ToString()));
+            });
         }
 
-        public AuthData logUserIn(User user){
-            var userId=user.id;
-            var sessionId="session_id";
-            var protector=dataProtectionProvider.CreateProtector(protectorPurpose);
-            httpContext.Response.Headers["set-cookie"]=$"userId={protector.Protect(userId)};httpOnly=true;secure=true";
-            httpContext.Response.Headers["set-cookie"]=$"sessionId={protector.Protect(sessionId)};httpOnly=true;secure=true";
-            return new AuthData(){
-                userId=userId,
-                sessionId=sessionId,
-            };
-        }
-
-        public AuthData authenticateUser(){
-            var protector=dataProtectionProvider.CreateProtector(protectorPurpose);
-            var userIdCookie=httpContext.Request.Headers.Cookie.FirstOrDefault(c=>c.StartsWith("userId="));
-            var sessionIdCookie=httpContext.Request.Headers.Cookie.FirstOrDefault(c=>c.StartsWith("sessionId="));;
-            if((userIdCookie!=null)&&(sessionIdCookie!=null)){
-                var protectedUserIdPayload=userIdCookie.Split("=").Last();
-                var protectedSessionIdPayload=sessionIdCookie.Split("=").Last();
-                var userIdPayload=protector.Unprotect(protectedUserIdPayload);
-                var sessionIdPayload=protector.Unprotect(protectedSessionIdPayload);
-                string userId=userIdPayload.Split(":").Last();
-                string sessionId=sessionIdPayload.Split(":").Last();
-                if(userId!=null) return new AuthData(){
-                    userId=userId,
-                    sessionId=sessionId,
-                };
-                else throw new Exception("unknow user identifier");
+        public  Task<AuthorizationResult> AuthorizeAsync(ClaimsPrincipal user,object? resource,string policyName){
+            if(user.Identity!.IsAuthenticated){
+                return Task.FromResult(AuthorizationResult.Success());
             }
-            else throw new Exception("unauthenticated action");
+            else return Task.FromResult(AuthorizationResult.Failed());
+        }
+        public Task<AuthorizationResult> AuthorizeAsync(ClaimsPrincipal user, object? resource, IEnumerable<IAuthorizationRequirement> requirements){
+            throw new NotImplementedException();
         }
     }
 }

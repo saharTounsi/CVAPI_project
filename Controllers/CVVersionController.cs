@@ -11,11 +11,10 @@ using CVAPI.Schemas;
 
 
 namespace CVAPI.Controllers {
+    [ApiController] [Route("api/cvversion")]
+    public class CVVersionController:Controller {
 
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CVVersionController : Controller {
-         private readonly DataContext context;
+        private readonly DataContext context;
         public CVVersionController(DataContext dataContext) {
             context = dataContext;
         }

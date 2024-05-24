@@ -9,7 +9,10 @@ namespace CVAPI.Schemas {
         public string id { get; set; }
 
         [Required]
-        public string name { get; set; }
+        public string firstName { get; set; }
+
+        [Required]
+        public string lastName { get; set; }
         
         [Required]
         public User.Role role { get; set; }
@@ -17,7 +20,8 @@ namespace CVAPI.Schemas {
         public PersonSchema(){}
         public PersonSchema(User user){
             this.id=user.id;
-            this.name=user.name;
+            this.firstName=user.firstName;
+            this.lastName=user.lastName;
             this.role=user.role;
         }
     }

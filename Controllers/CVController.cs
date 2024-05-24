@@ -6,9 +6,7 @@ using RouteAttribute=Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 
 namespace CVAPI.Controllers {
-
-    [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] [Route("api/cv")]
     public class CVController:Controller {
 
         private readonly ICVRep cvRep;

@@ -8,10 +8,12 @@ namespace CVAPI.Schemas {
     public class UserUpdateSchema {
 
         [Required]
-        public string name {get;set;}
+        public string? firstName {get;set;}
 
         [Required]
-        public string password { get; set; }
+        public string? lasttName {get;set;}
 
+        [Required]
+        public string? password {get;set;}
     }
 }

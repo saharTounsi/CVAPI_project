@@ -1,14 +1,12 @@
 ﻿using CVAPI.Data;
-using CVAPI.Interfaces;
 using CVAPI.Models;
 using CVAPI.Schemas;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace CVAPI.Repositories 
 {
-    public class UserRep:IUserRep {
+    public class UserRep {
 
         private readonly DataContext context;
 
@@ -26,15 +24,16 @@ namespace CVAPI.Repositories
             }
         }
 
-        public List<UserSchema> GetUsers(string adminid){
-            throw new NotImplementedException();
+        public Task<List<UserSchema>> GetUsers(){
+            var users=context.users.Where(user=>user.id!=null).Select(user=>new UserSchema(user)).ToList();
+            return Task.FromResult(users);
         }
 
         public async Task<User?> FindByCredentials(UserCredentials credentials){
             string userEmail=credentials.email;
             string userPassword=credentials.password;
             try{
-                var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.password==userPassword));
+                var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.hash==userPassword));
                 return user;
             }
             catch(Exception exception){
@@ -62,12 +61,17 @@ namespace CVAPI.Repositories
         public async Task<User> UpdateUser(string userId,UserUpdateSchema data){
            var user=await context.FindAsync<User>(userId);
             if(user!=null){
+                var firstName=data.firstName;
+                var lasttName=data.lasttName;
+                var password=data.password;;
                 var entry=context.Update<User>(user);
-                entry.Entity.name=data.name;
-                entry.Entity.password=data.password;
-                await context.SaveChangesAsync();   
+                if(firstName!=null) entry.Entity.firstName=firstName;
+                if(lasttName!=null) entry.Entity.lastName=lasttName;
+                if(password!=null) entry.Entity.hash=password;
+                await context.SaveChangesAsync();
+                return user;  
             }
-            return user; 
+            else throw new Exception("no user to update"); 
         }
 
     }
