@@ -27,10 +27,14 @@ namespace CVAPI.Models {
 
         public enum Role {Employee,HR,Manager};
 
-        static public string getHash(User user){
-            const string password="1234";
+        static public string getHash(User user,string password="1234"){
             var hasher=new PasswordHasher<User>();
             return hasher.HashPassword(user,password);
+        }
+
+        static public bool verifyPassword(User user,string password){
+            var hasher=new PasswordHasher<User>();
+            return hasher.VerifyHashedPassword(user,user.hash,password)>0;
         }
     }
 }

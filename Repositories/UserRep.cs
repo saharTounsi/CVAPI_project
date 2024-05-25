@@ -14,7 +14,23 @@ namespace CVAPI.Repositories
         public UserRep(DataContext dataContext) {
             context=dataContext;
         }
-        
+
+        public async Task<bool> UpdateUser(UserUpdateFields data){
+            var user=await context.FindAsync<User>(data.userId);
+            if(user!=null){
+                context.Update(user);
+                if(data.firstName!=null) user.firstName=data.firstName;
+                if(data.lastName!=null) user.lastName=data.lastName;
+                if(data.role!=null) user.role=(User.Role)data.role;
+                if(data.isActive!=null) user.isActive=(bool)data.isActive;
+                var password=data.password;
+                if(password!=null) user.hash=User.getHash(user,password);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            else throw new Error("no such user to update");
+        }
+
         public async Task<User> AddUser(NewUserSchema data){
             var userEmail=data.email;
             var exists=await context.users.AnyAsync(user=>user.email==userEmail);
@@ -43,16 +59,11 @@ namespace CVAPI.Repositories
             return Task.FromResult(users);
         }
 
-        public async Task<User?> FindByCredentials(UserCredentials credentials){
+        public async Task<User> FindByCredentials(UserCredentials credentials){
             string userEmail=credentials.email;
-            string userPassword=credentials.password;
-            try{
-                var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.hash==userPassword));
-                return user;
-            }
-            catch(Exception){
-                return null;
-            }
+            var user=await context.users.FirstAsync(user=>user.email==userEmail);
+            if((user!=null)&&User.verifyPassword(user,credentials.password)) return user;
+            else throw new Error("incorrect credentials");
         } 
 
         public async Task<User?> DeleteUser(string userId){
@@ -63,23 +74,5 @@ namespace CVAPI.Repositories
             }
             return user;
         }
-
-
-        public async Task<User> UpdateUser(string userId,UserUpdateSchema data){
-           var user=await context.FindAsync<User>(userId);
-            if(user!=null){
-                var firstName=data.firstName;
-                var lasttName=data.lasttName;
-                var password=data.password;;
-                var entry=context.Update<User>(user);
-                if(firstName!=null) entry.Entity.firstName=firstName;
-                if(lasttName!=null) entry.Entity.lastName=lasttName;
-                if(password!=null) entry.Entity.hash=password;
-                await context.SaveChangesAsync();
-                return user;  
-            }
-            else throw new Error("no user to update"); 
-        }
-
     }
 }

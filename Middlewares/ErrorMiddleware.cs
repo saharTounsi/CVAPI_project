@@ -32,6 +32,7 @@ namespace CVAPI.Middlewares {
         public int statusCode {get;set;}=(int)HttpStatusCode.InternalServerError;
         public int? code {get;set;}
         public string? message {get;set;}
+        public string? error {get;set;}
 
         public Error(){}
         public Error(string message,int code=-1){
@@ -43,6 +44,7 @@ namespace CVAPI.Middlewares {
             var json= new SerializableError(){
                 {"satusCode",statusCode},
                 {"code",code??-1},
+                {"error",error??"true"},
                 {"message",message??""},
             };
             return JsonConvert.SerializeObject(json);

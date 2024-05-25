@@ -8,7 +8,7 @@ namespace CVAPI.Schemas {
     public class UserSchema:NewUserSchema {
 
         [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string id { get; set; }
+        public string id {get;set;}
 
         [DefaultValue(false)]
         public bool isAdmin {get;set;}=false;

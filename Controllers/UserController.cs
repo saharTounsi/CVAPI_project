@@ -21,27 +21,49 @@ namespace CVAPI.Controllers {
             this.context=httpContextAccessor.HttpContext!;           
         }
 
-        [HttpPost("login")]
+        [HttpPut("update")] [Authorize]
         [ProducesResponseType(200,Type=typeof(bool))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> login([FromBody] UserCredentials data){
-            var user=await userRep.FindByCredentials(data);
-            if(user!=null){
-                var claims=new List<Claim>{
-                    new(ClaimTypes.NameIdentifier,user.id),
-                    new("id",user.id),
-                    new("email",data.email),
-                    new("isAdmin",user.isAdmin.ToString()),
-                    new("role",user.role.ToString()),
-                };
-                var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
-                await context.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(identity)
-                );
-                return Ok(true);
+        public async Task<IActionResult>UpdateUser([FromBody] UserUpdateFields data){
+            var id=User.FindFirst("id")!.Value;
+            var userId=data.userId??id;
+            if(userId==id){
+                if(data.role!=null) throw new Error("user can't change his own role");
             }
-            else throw new Error("unrecognized user");
+            else{
+                if(data.password!=null) throw new Error("only the user himself can change his password");
+                else{
+                    var isAdmin=User.FindFirst("isAdmin")!.Value=="True";
+                    if(!isAdmin) throw new Error("admin status required");
+                }
+            }
+            data.userId=userId;
+            var sucessful=await userRep.UpdateUser(data);
+            return Ok(sucessful);
+        }
+
+        [HttpPost("add")] 
+        [Authorize] [Authorize(Policy="isAdmin")]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult>AddUser([FromBody] NewUserSchema data){
+           var user=await userRep.AddUser(data);
+           return Ok(new UserSchema(user));
+        }
+
+        [HttpGet("{userId}")] 
+        [Authorize] [Authorize(Policy="isAdmin")]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult> GetUser(string userId){
+            var user=await userRep.GetUser(userId);
+            if(user!=null) return Ok(new UserSchema(user));
+            else throw new Error("no such user") ;
+        }
+
+        [HttpGet] [Authorize]
+        [ProducesResponseType(200,Type=typeof(UserSchema))]
+        public async Task<IActionResult> GetUser(){
+            var userId=context.User.FindFirst("id")!.Value;
+            var user=await userRep.GetUser(userId);
+            return Ok(user==null?null:new UserSchema(user));
         }
 
         [HttpGet("logout")] [Authorize]
@@ -60,29 +82,24 @@ namespace CVAPI.Controllers {
             return Ok(users);
         }
 
-        [HttpGet("")] [Authorize]
-        [ProducesResponseType(200,Type=typeof(UserSchema))]
-        public async Task<IActionResult> GetUser(){
-            var userId=context.User.FindFirst("id")!.Value;
-            var user=await userRep.GetUser(userId);
-            return Ok(user==null?null:new UserSchema(user));
-        }
-
-        [HttpGet("{userId}")] 
-        [Authorize] [Authorize(Policy="isAdmin")]
-        [ProducesResponseType(200,Type=typeof(UserSchema))]
-        public async Task<IActionResult> GetUser(string userId){
-            var user=await userRep.GetUser(userId);
-            if(user!=null) return Ok(new UserSchema(user));
-            else throw new Error("no such user") ;
-        }
-
-        [HttpPost("add")] 
-        [Authorize] [Authorize(Policy="isAdmin")]
-        [ProducesResponseType(200,Type=typeof(UserSchema))]
-        public async Task<IActionResult>AddUser([FromBody] NewUserSchema data){
-           var user=await userRep.AddUser(data);
-           return Ok(new UserSchema(user));
+        [HttpPost("login")]
+        [ProducesResponseType(200,Type=typeof(bool))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> login([FromBody] UserCredentials data){
+            var user=await userRep.FindByCredentials(data);
+            var claims=new List<Claim>{
+                new(ClaimTypes.NameIdentifier,user.id),
+                new("id",user.id),
+                new("email",data.email),
+                new("isAdmin",user.isAdmin.ToString()),
+                new("role",user.role.ToString()),
+            };
+            var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+            await context.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
+            return Ok(true);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace CVAPI.Interfaces
         List<UserSchema> GetUsers(string adminid);
         Task<User> CreateUser(NewUserSchema data);
         Task<User?> DeleteUser(string userId);
-        Task<User> UpdateUser(string userId,UserUpdateSchema data);
+        Task<User> UpdateUser(string userId,UserUpdateFields data);
         Task<User?> FindByCredentials(UserCredentials credentials);
         Task<User?> GetUser(string userId);
         //bool save(); 
