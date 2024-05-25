@@ -1,4 +1,5 @@
 using RestSharp;
+using CVAPI.Middlewares;
 
 
 namespace CVAPI.Data.CVAnalysis {
@@ -24,7 +25,7 @@ namespace CVAPI.Data.CVAnalysis {
             if(response.IsSuccessStatusCode){
                 return new CVData(){profileName=fileName,profileEmail=filePath};
             }
-            else throw new Exception("could not upload file "+response.StatusCode+".");
+            else throw new Error("could not upload file "+response.StatusCode+".");
             //request.AddParameter("Project", refdoc.Title); 
             //code to analyse cv
             
@@ -46,7 +47,7 @@ namespace CVAPI.Data.CVAnalysis {
                 props.Add("filePath",filePath);
                 return props;
             }
-            else throw new Exception("unsupported file format. CV needs to be in "+string.Join(",",supportedTypes)+".");
+            else throw new Error("unsupported file format. CV needs to be in "+string.Join(",",supportedTypes)+".");
         }
 
         private static bool checkFormFile(IFormFile formFile){

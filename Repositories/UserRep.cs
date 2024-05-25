@@ -1,6 +1,7 @@
 ﻿using CVAPI.Data;
 using CVAPI.Models;
 using CVAPI.Schemas;
+using CVAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -24,7 +25,7 @@ namespace CVAPI.Repositories
                 await context.SaveChangesAsync();
                 return user;
             } 
-            else throw new Exception("email taken");
+            else throw new Error("email taken");
         } 
 
         public async Task<User?> GetUser(string userId){
@@ -32,7 +33,7 @@ namespace CVAPI.Repositories
                 var user=await context.users.FirstAsync(user=>user.id==userId);
                 return user;
             }
-            catch(Exception exception){
+            catch(Exception){
                 return null;
             }
         }
@@ -49,7 +50,7 @@ namespace CVAPI.Repositories
                 var user=await context.users.FirstAsync(user=>(user.email==userEmail)&&(user.hash==userPassword));
                 return user;
             }
-            catch(Exception exception){
+            catch(Exception){
                 return null;
             }
         } 
@@ -77,7 +78,7 @@ namespace CVAPI.Repositories
                 await context.SaveChangesAsync();
                 return user;  
             }
-            else throw new Exception("no user to update"); 
+            else throw new Error("no user to update"); 
         }
 
     }

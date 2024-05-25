@@ -16,30 +16,33 @@ namespace CVAPI.Middlewares {
 
         public async Task InvokeAsync(HttpContext httpContext){
             try{await next(httpContext);}
-            catch (Exception ex){
-                logger.LogError($"An error occurred: {ex}");
-                await HandleExceptionAsync(httpContext,ex);
+            catch (Error error){
+                await HandleExceptionAsync(httpContext,error);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context,Exception exception){
+        private async Task HandleExceptionAsync(HttpContext context,Error error){
             context.Response.ContentType="application/json";
-            context.Response.StatusCode=(int)HttpStatusCode.InternalServerError;
-
-            await context.Response.WriteAsync(new Error(){
-                statusCode=context.Response.StatusCode,
-                message=exception.Message,
-            }.ToString());
+            context.Response.StatusCode=error.statusCode;
+            await context.Response.WriteAsync(error.ToString());
         }
     }
 
-    public class Error {
-        public int statusCode {get;set;}
+    public class Error:Exception {
+        public int statusCode {get;set;}=(int)HttpStatusCode.InternalServerError;
+        public int? code {get;set;}
         public string? message {get;set;}
+
+        public Error(){}
+        public Error(string message,int code=-1){
+            this.code=code;
+            this.message=message;
+        }
 
         public override string ToString(){
             var json= new SerializableError(){
                 {"satusCode",statusCode},
+                {"code",code??-1},
                 {"message",message??""},
             };
             return JsonConvert.SerializeObject(json);

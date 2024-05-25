@@ -1,12 +1,12 @@
-using System.Security.Claims;
+using System.Net;
+using CVAPI.Middlewares;
 using CVAPI.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 
 
 namespace CVAPI.Services {
-    public class AuthService:IAuthorizationService {
-        //readonly static string corsPolicyName="AllowSpecificOrigin";
+    public class AuthService {
+        
         public static void addAuthentication(WebApplicationBuilder builder){
             const string AuthenticationSchema=CookieAuthenticationDefaults.AuthenticationScheme;
             builder.Services.AddAuthentication(options=>{
@@ -15,8 +15,25 @@ namespace CVAPI.Services {
                 options.DefaultChallengeScheme=AuthenticationSchema;
             }).AddCookie(options=>{
                 options.Cookie.HttpOnly=true;
-                options.Cookie.SameSite=SameSiteMode.None;
+                options.Cookie.Domain="";
+                options.Cookie.SameSite=SameSiteMode.Lax;
                 options.Cookie.SecurePolicy=CookieSecurePolicy.None;
+                options.Events=new CookieAuthenticationEvents(){
+                    OnRedirectToLogin=(context)=>{
+                        context.Response.StatusCode=(int)HttpStatusCode.Forbidden;
+                        return context.Response.WriteAsync(new Error(){
+                            code=0,
+                            message="authentication required",
+                        }.ToString());
+                    },
+                    OnRedirectToAccessDenied=(context)=>{
+                        context.Response.StatusCode=(int)HttpStatusCode.Unauthorized;
+                        return context.Response.WriteAsync(new Error(){
+                            code=1,
+                            message="access denied, Unauthorized action",
+                        }.ToString());
+                    },
+                };
             });
             builder.Services.AddAuthorization(options=>{
                 //options.AddPolicy("isAuthenticated",(policy)=>policy.RequireClaim());
@@ -25,16 +42,6 @@ namespace CVAPI.Services {
                 options.AddPolicy("isHR",(policy)=>policy.RequireClaim("role",User.Role.HR.ToString()));
                 options.AddPolicy("isEmployee",(policy)=>policy.RequireClaim("role",User.Role.Employee.ToString()));
             });
-        }
-
-        public  Task<AuthorizationResult> AuthorizeAsync(ClaimsPrincipal user,object? resource,string policyName){
-            if(user.Identity!.IsAuthenticated){
-                return Task.FromResult(AuthorizationResult.Success());
-            }
-            else return Task.FromResult(AuthorizationResult.Failed());
-        }
-        public Task<AuthorizationResult> AuthorizeAsync(ClaimsPrincipal user, object? resource, IEnumerable<IAuthorizationRequirement> requirements){
-            throw new NotImplementedException();
         }
     }
 }

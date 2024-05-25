@@ -1,11 +1,11 @@
-﻿
-using CVAPI.Repositories;
+﻿using CVAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using CVAPI.Schemas;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using CVAPI.Middlewares;
 
 
 namespace CVAPI.Controllers {
@@ -22,54 +22,40 @@ namespace CVAPI.Controllers {
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(200,Type=typeof(AuthData))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> login([FromBody] UserCredentials data){
-            try{
-                var user=await userRep.FindByCredentials(data);
-                if(user!=null){
-                    var claims=new List<Claim>{
-                        new("id",user.id),
-                        new("email",data.email),
-                        new("isAdmin",user.isAdmin.ToString()),
-                        new("role",user.role.ToString()),
-                    };
-                    var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
-                    await context.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(identity)
-                    );
-                    return Ok(new AuthData(){userId=user.id}); 
-                }
-                else throw new Exception("unrecognized user");
-            }
-            catch(Exception exception){
-                return BadRequest(exception.Message);
-            }
-        }
-
-        [HttpPost("logout")] [Authorize]
         [ProducesResponseType(200,Type=typeof(bool))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> logout([FromBody] UserCredentials data){
-            try{
-                var isAuthenticated=context.User.Identity!.IsAuthenticated;
-                if(isAuthenticated){
-                    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    return Ok(true);
-                }
-                else throw new Exception("unknown session");
+        public async Task<IActionResult> login([FromBody] UserCredentials data){
+            var user=await userRep.FindByCredentials(data);
+            if(user!=null){
+                var claims=new List<Claim>{
+                    new(ClaimTypes.NameIdentifier,user.id),
+                    new("id",user.id),
+                    new("email",data.email),
+                    new("isAdmin",user.isAdmin.ToString()),
+                    new("role",user.role.ToString()),
+                };
+                var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+                await context.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity)
+                );
+                return Ok(true);
             }
-            catch(Exception exception){
-                return BadRequest(exception.Message);
-            }
+            else throw new Error("unrecognized user");
+        }
+
+        [HttpGet("logout")] [Authorize]
+        [ProducesResponseType(200,Type=typeof(bool))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> logout(){
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok(true);
         }
 
         [HttpGet("all")] 
         [Authorize] [Authorize(Policy="isAdmin")] 
         [ProducesResponseType(200,Type=typeof(List<UserSchema>))]  
         public async Task<IActionResult> GetUsers(){
-            var adminId=context.User.FindFirstValue("id")!;
             var users=await userRep.GetUsers();
             return Ok(users);
         }
@@ -87,7 +73,8 @@ namespace CVAPI.Controllers {
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult> GetUser(string userId){
             var user=await userRep.GetUser(userId);
-            return Ok(user==null?null:new UserSchema(user));
+            if(user!=null) return Ok(new UserSchema(user));
+            else throw new Error("no such user") ;
         }
 
         [HttpPost("add")] 

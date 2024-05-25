@@ -12,18 +12,19 @@ bool isDevEnv=builder.Environment.IsDevelopment();
 bool useSwagger=builder.Configuration.GetValue("useSwagger",true);
 
 //Services
-builder.Services.AddControllers();
 builder.Services.AddScoped<ICVRep,CVRep>(); 
 builder.Services.AddScoped<UserRep>();
 builder.Services.AddScoped<ICVVersionRep,CVVersionRep>();
 builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<AuthService>();
 builder.Services.AddDbContext<DataContext>(options=>{
     options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
 if(isDevEnv&&useSwagger) builder.Services.AddSwaggerGen();
 AuthService.addAuthentication(builder);
+builder.Services.AddControllers();
 var corsPolicyName=SecurityService.addCors(builder);
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -40,10 +41,9 @@ if(isDevEnv){
         app.UseSwaggerUI();
     }
 }
-//app.UseHttpsRedirection();
 app.UseMiddleware<ErrorMiddleware>();
+app.UseCors(corsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseCors(corsPolicyName);
 app.Run();
