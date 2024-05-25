@@ -4,10 +4,7 @@ using CVAPI.Interfaces;
 using CVAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 using CVAPI.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using CVAPI.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Cors.Infrastructure;
+using CVAPI.Middlewares;
 
 
 var builder=WebApplication.CreateBuilder(args);
@@ -26,13 +23,6 @@ builder.Services.AddDbContext<DataContext>(options=>{
     options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
 if(isDevEnv&&useSwagger) builder.Services.AddSwaggerGen();
-
-const string AuthenticationSchema=CookieAuthenticationDefaults.AuthenticationScheme;
-builder.Services.AddAuthentication(options=>{
-    options.DefaultAuthenticateScheme=AuthenticationSchema;
-    options.DefaultSignInScheme=AuthenticationSchema;
-    options.DefaultChallengeScheme=AuthenticationSchema;
-}).AddCookie();
 AuthService.addAuthentication(builder);
 var corsPolicyName=SecurityService.addCors(builder);
 //builder.Services.AddEndpointsApiExplorer();
@@ -51,6 +41,7 @@ if(isDevEnv){
     }
 }
 //app.UseHttpsRedirection();
+app.UseMiddleware<ErrorMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -30,7 +30,7 @@ namespace CVAPI.Models {
         static public string getHash(User user){
             const string password="1234";
             var hasher=new PasswordHasher<User>();
-            
+            return hasher.HashPassword(user,password);
         }
     }
 }

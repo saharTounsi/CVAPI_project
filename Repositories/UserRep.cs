@@ -15,10 +15,16 @@ namespace CVAPI.Repositories
         }
         
         public async Task<User> AddUser(NewUserSchema data){
-            var user=new User(data);
-            context.Add(user);
-            await context.SaveChangesAsync();
-            return user;
+            var userEmail=data.email;
+            var exists=await context.users.AnyAsync(user=>user.email==userEmail);
+            if(!exists){
+                var user=new User(data);
+                user.hash=User.getHash(user);
+                context.Add(user);
+                await context.SaveChangesAsync();
+                return user;
+            } 
+            else throw new Exception("email taken");
         } 
 
         public async Task<User?> GetUser(string userId){
@@ -47,13 +53,6 @@ namespace CVAPI.Repositories
                 return null;
             }
         } 
-
-        public async Task<User> CreateUser(NewUserSchema data){
-            var user=new User(data);
-            await context.AddAsync(user);
-            await context.SaveChangesAsync();
-            return user;
-        }
 
         public async Task<User?> DeleteUser(string userId){
             var user=await context.FindAsync<User>(userId);

@@ -21,14 +21,6 @@ namespace CVAPI.Controllers {
             this.context=httpContextAccessor.HttpContext!;           
         }
 
-        [HttpPost("signup")]
-        [ProducesResponseType(200,Type=typeof(bool))]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateUser([FromBody] NewUserSchema data){
-            var user=await userRep.CreateUser(data);
-            return Ok(true);
-        }
-
         [HttpPost("login")]
         [ProducesResponseType(200,Type=typeof(AuthData))]
         [ProducesResponseType(400)]
@@ -98,19 +90,12 @@ namespace CVAPI.Controllers {
             return Ok(user==null?null:new UserSchema(user));
         }
 
-        [HttpPost("{id}")]
-        [ProducesResponseType(200,Type=typeof(UserSchema))]
-        public async Task<IActionResult> DeleteUser(string id){
-            var user=await userRep.DeleteUser(id);
-            return Ok(true);
-        }
-
         [HttpPost("add")] 
         [Authorize] [Authorize(Policy="isAdmin")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult>AddUser([FromBody] NewUserSchema data){
            var user=await userRep.AddUser(data);
-           return Ok(true);
+           return Ok(new UserSchema(user));
         }
     }
 }
