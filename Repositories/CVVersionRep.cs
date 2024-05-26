@@ -1,6 +1,7 @@
 ﻿using CVAPI.Data;
 using CVAPI.Interfaces;
 using CVAPI.Models;
+using CVAPI.Schemas;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -13,6 +14,22 @@ namespace CVAPI.Repositories {
         public CVVersionRep(DataContext context){
             this.context=context;
             //this.cvRep=cvRep;
+        }
+
+        public async Task<CVVersion> AddVersion(CV cv,CVData data){
+            var version=new CVVersion(){
+                cvId=cv.id,
+                fileName=data.fileName,
+                profileName=data.profileName,
+                profileEmail=data.profileEmail,
+                profileTel=data.profileTel,
+                profileSkills=data.profileSkills,
+                profileExperience=data.profileExperience,
+            };
+            context.Add(version);
+            cv.currentVersionId=version.id;
+            await context.SaveChangesAsync();
+            return version;
         }
 
         public async Task<CV?> FindCV(string cvId){

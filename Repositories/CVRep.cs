@@ -17,18 +17,7 @@ namespace CVAPI.Repositories {
         public async Task<CV> AddCV(string userId,string cvName,CVData data){
             var cv=new CV(){name=cvName,userId=userId};
             context.Add(cv);
-            var cvversion=new CVVersion(){
-                cvId=cv.id,
-                fileName=data.fileName,
-                profileName=data.profileName,
-                profileEmail=data.profileEmail,
-                profileTel=data.profileTel,
-                profileSkills=data.profileSkills,
-                profileExperience=data.profileExperience,
-            };
-            context.Add(cvversion);
-            cv.currentVersionId=cvversion.id;
-            await context.SaveChangesAsync();
+            await cvVersionRep.AddVersion(cv,data);
             return cv;
         } 
 

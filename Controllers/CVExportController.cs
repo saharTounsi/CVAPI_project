@@ -28,11 +28,10 @@ namespace CVAPI.Controllers {
             return Ok(user);
         }
          
-        [HttpGet("Version/{id}")]
+        [HttpGet("version/{id}")]
         [ProducesResponseType(200,Type=typeof(CVVersionSchema))]
         public async Task<IActionResult> GetCVExportVersion(string id){
             var CVVersion=await cvExportRep.GetCVExportVersion(id);
-            
             return Ok(CVVersion);
         } 
     }

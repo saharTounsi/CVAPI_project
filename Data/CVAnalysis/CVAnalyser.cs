@@ -9,7 +9,7 @@ namespace CVAPI.Data.CVAnalysis {
 
         public static readonly List<string> supportedTypes=["application/pdf"];
 
-        private static readonly string url="https://b4e0-35-192-41-10.ngrok-free.app";
+        private static readonly string url="https://1d75-34-148-70-7.ngrok-free.app";
         private static readonly RestClient client=new RestClient(url);
         private static readonly string tmpFolderName="tmp";
         public static readonly string CVFolderName="wwwroot";
