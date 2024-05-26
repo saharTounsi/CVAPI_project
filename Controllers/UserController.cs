@@ -78,7 +78,8 @@ namespace CVAPI.Controllers {
         [Authorize] [Authorize(Policy="isAdmin")] 
         [ProducesResponseType(200,Type=typeof(List<UserSchema>))]  
         public async Task<IActionResult> GetUsers(){
-            var users=await userRep.GetUsers();
+            var userId=context.User.FindFirstValue("id")!;
+            var users=await userRep.GetUsers(userId);
             return Ok(users);
         }
 

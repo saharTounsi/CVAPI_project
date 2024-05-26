@@ -1,66 +1,63 @@
 ﻿using CVAPI.Data;
 using CVAPI.Models;
 using CVAPI.Schemas;
-using CVAPI.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 
 namespace CVAPI.Repositories {
-    public class CVRep:ICVRep {
+    public class CVRep {
 
         private readonly DataContext context;
+        private CVVersionRep cvVersionRep;
 
-        public CVRep(DataContext dataContext){
-            context=dataContext;    
+        public CVRep(DataContext dataContext,CVVersionRep cvVersionRep){
+            context=dataContext;
+            this.cvVersionRep=cvVersionRep;
         }
 
-        public List<CVSchema> GetUserCVs(string id){
-            var cvs=context.cvs.Where<CV>(cv=>cv.userId==id).ToList<CVSchema>();
-            return cvs;
-        }
-        /* public bool createCV(CV cV)
-        {
-            _Context.Add(cV);
-            return save();
-        }
+        public async Task<CV> AddCV(string userId,string cvName,CVData data){
+            var cv=new CV(){name=cvName,userId=userId};
+            context.Add(cv);
+            var cvversion=new CVVersion(){
+                cvId=cv.id,
+                fileName=data.fileName,
+                profileName=data.profileName,
+                profileEmail=data.profileEmail,
+                profileTel=data.profileTel,
+                profileSkills=data.profileSkills,
+                profileExperience=data.profileExperience,
+            };
+            context.Add(cvversion);
+            cv.currentVersionId=cvversion.id;
+            await context.SaveChangesAsync();
+            return cv;
+        } 
 
-        public bool CVExists(string id)
-        {
-            return _Context.cvs.Any(c => c.id == id);
-        }
-
-        public Task<(FileStream, string)> GetCV(string id)
-         {
-             var fileEntity = await _Context.cvs.FindAsync(id);
-             if (fileEntity == null)
-                 return (null,null);
-
-             string tempFilePath = Path.GetTempFileName();
-
-             System.IO.File.WriteAllBytes(tempFilePath, fileEntity.referenceDocument);
-
-             FileStream stream = new FileStream(tempFilePath, FileMode.Open, FileAccess.Read);
-
-             return (stream,fileEntity.Title);
-         }
-
-
-        public ICollection<CV> GetCVs()
-        {
-             return _Context.cvs.ToList();
+        public Task<List<CV>> GetUserCVs(string id){
+            var cvs=context.cvs.Where(cv=>cv.userId==id).ToList();
+            return Task.FromResult(cvs);
         }
 
-        public bool save()
-        {
-           var saved = _Context.SaveChanges();
-            return saved > 0 ? true : false;
+        public Task<List<CV>> GetAll(){
+            var cvs=context.cvs.ToList();
+            return Task.FromResult(cvs);
         }
 
-        public bool updateCV(CV cV)
-        {
-            _Context.Update(cV);
-            return save();
-        } */
+        public async Task<CV?> GetCV(string id){
+            return await context.cvs.FindAsync(id);
+        }
+
+        public async Task<List<CVSchema>> toCVSchema(List<CV> cvs){
+            var list=new List<CVSchema>();
+            foreach(CV cv in cvs){
+                var cvschema=await this.toCVSchema(cv);
+                list.Add(cvschema);
+            }
+            return list;
+        }
+
+        public async Task<CVSchema> toCVSchema(CV cv){
+            var version=await cvVersionRep.findOne(cv.currentVersionId);
+            return new CVSchema(cv,version);
+        }
     }
 }

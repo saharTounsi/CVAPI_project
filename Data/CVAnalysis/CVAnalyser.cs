@@ -1,19 +1,23 @@
 using RestSharp;
 using CVAPI.Middlewares;
+using CVAPI.Schemas;
+using System.Text.Json;
 
 
 namespace CVAPI.Data.CVAnalysis {
     public class CVAnalyser {
 
         public static readonly List<string> supportedTypes=["application/pdf"];
-        private static readonly RestClient client=new RestClient("http://127.0.0.1:5000");
+
+        private static readonly string url="https://b4e0-35-192-41-10.ngrok-free.app";
+        private static readonly RestClient client=new RestClient(url);
+        private static readonly string tmpFolderName="tmp";
+        public static readonly string CVFolderName="wwwroot";
 
         public static async Task<CVData> analyseCV(IFormFile formFile){
-            Dictionary<string,string> fileProps=await saveFormFile(formFile);
-            var fileName=fileProps["fileName"];
+            Dictionary<string,string> fileProps=await saveTmpFormFile(formFile);
             var filePath=fileProps["filePath"];
-            //var client=new RestClient("http://127.0.0.1:5000");
-            var request=new RestRequest("/analyse",Method.Post){
+            var request=new RestRequest("/upload",Method.Post){
                 AlwaysMultipartFormData=true,
             };
             request.AddHeader("Content-Type","multipart/form-data");
@@ -23,23 +27,41 @@ namespace CVAPI.Data.CVAnalysis {
             });
             var response=await client.PostAsync(request);
             if(response.IsSuccessStatusCode){
-                return new CVData(){profileName=fileName,profileEmail=filePath};
+                var data=JsonSerializer.Deserialize<Dictionary<string,string>>(response.Content??"{}");
+                var fileName=fileProps["fileName"];
+                moveTmpFile(fileName);
+                return new CVData(){
+                    profileName=data["nom"],
+                    profileEmail=data["email"],
+                    profileTel=data["telephone"],
+                    profileSkills=data["competences"],
+                    profileExperience=data["experience"],
+                    fileName=fileName,
+                };
             }
-            else throw new Error("could not upload file "+response.StatusCode+".");
-            //request.AddParameter("Project", refdoc.Title); 
-            //code to analyse cv
-            
+            else{
+                File.Delete(filePath);
+                throw new Error("could not upload file "+response.StatusCode+".");
+            };
         }
 
-        private static async Task<Dictionary<string,string>> saveFormFile(IFormFile formFile){
+        private static void moveTmpFile(string fileName){
+            if(!Directory.Exists(CVFolderName)) Directory.CreateDirectory(CVFolderName);
+            string sourceFile=Path.Combine(tmpFolderName,fileName);
+            string destinationFile=Path.Combine(CVFolderName,fileName);;
+            File.Move(sourceFile,destinationFile);
+        }
+
+        private static async Task<Dictionary<string,string>> saveTmpFormFile(IFormFile formFile){
             if(checkFormFile(formFile)){
+                if(!Directory.Exists(tmpFolderName)) Directory.CreateDirectory(tmpFolderName);
                 var props=new Dictionary<string,string>();
                 var slices=formFile.FileName.Split(".").ToList();
                 var fileExt=slices.Last();
                 slices.RemoveAt(slices.Count-1);
-                var fileBasename=string.Join(".",slices);
-                var fileName=fileBasename+"_"+new Random().Next(100000000,999999999)+"."+fileExt;
-                string filePath=Path.Combine("tmp",fileName);
+                //var fileBasename=string.Join(".",slices).ToLower();
+                var fileName=getFileId()+"."+fileExt;
+                string filePath=Path.Combine(tmpFolderName,fileName);
                 using (Stream fileStream=new FileStream(filePath,FileMode.Create)){
                     await formFile.CopyToAsync(fileStream);
                 }
@@ -53,12 +75,9 @@ namespace CVAPI.Data.CVAnalysis {
         private static bool checkFormFile(IFormFile formFile){
             return supportedTypes.Contains(formFile.ContentType);
         }
-    }
 
-    public class CVData {
-        public string? profileName {get;set;}
-        public string? profileEmail {get;set;}
-        public string? profileTel {get;set;}
-        //email compétences expériences tel 
+        static private string getFileId(){
+            return new Random().Next(100000000,999999999)+""+new Random().Next(100000000,999999999);
+        } 
     }
 };

@@ -44,7 +44,7 @@ namespace CVAPI.Middlewares {
             var json= new SerializableError(){
                 {"satusCode",statusCode},
                 {"code",code??-1},
-                {"error",error??"true"},
+                {"error",error??"Bad Request"},
                 {"message",message??""},
             };
             return JsonConvert.SerializeObject(json);

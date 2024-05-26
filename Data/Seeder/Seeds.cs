@@ -10,7 +10,6 @@ namespace CVAPI.Data.Seeder {
                 firstName="sahar",
                 lastName="tounsi",
                 email="sahartounsi21@gmail.com",
-                hash="1234",
                 role=User.Role.Manager,
             },
             new(){
@@ -19,7 +18,6 @@ namespace CVAPI.Data.Seeder {
                 firstName="ahmed",
                 lastName="ayachi",
                 email="aayachi032@gmail.com",
-                hash="1234",
                 role=User.Role.Employee,
             },
             new(){
@@ -27,7 +25,6 @@ namespace CVAPI.Data.Seeder {
                 firstName="amine",
                 lastName="ayachi",
                 email="amine152@gmail.com",
-                hash="1234",
                 role=User.Role.HR,
             },
             new(){
@@ -36,10 +33,12 @@ namespace CVAPI.Data.Seeder {
                 firstName="youssef",
                 lastName="jouini",
                 email="jouini9youssef@gmail.com",
-                hash="1234",
                 role=User.Role.Employee,
             },
-        };
+        }.Select(user=>{
+            user.hash=User.getHash(user,"1234");
+            return user;
+        }).ToList();
 
          public static List<CV> cvs=new List<CV>(){
             new(){
@@ -48,7 +47,6 @@ namespace CVAPI.Data.Seeder {
                 userId="0",
                 datetime=DateTime.UtcNow,
                 currentVersionId="0",
-                
             },
              new(){
                 id="1",
@@ -116,21 +114,18 @@ namespace CVAPI.Data.Seeder {
                 fileName="file_0.pdf",
                 cvId="0",
                 datetime=DateTime.UtcNow,
-                path="c:0"
             },
             new(){
-               id="1",
-               fileName="file_1.pdf",
-               cvId="1",
-               datetime=DateTime.UtcNow,
-               path="c:1"
+                id="1",
+                fileName="file_1.pdf",
+                cvId="1",
+                datetime=DateTime.UtcNow,
             },
             new(){
-              id="2",
-              fileName="file_2.pdf",
-              cvId="2",
-              datetime=DateTime.UtcNow,
-              path="c:2"
+                id="2",
+                fileName="file_2.pdf",
+                cvId="2",
+                datetime=DateTime.UtcNow,
             },
         };
     }

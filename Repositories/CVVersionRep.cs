@@ -1,45 +1,32 @@
 ﻿using CVAPI.Data;
 using CVAPI.Interfaces;
 using CVAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace CVAPI.Repositories {
-    public class CVVersionRep:ICVVersionRep {
+    public class CVVersionRep {
 
-        private DataContext _Context;
+        private DataContext context;
+        //private CVRep cvRep;
 
-        public CVVersionRep(DataContext Context){
-
-            _Context = Context;
+        public CVVersionRep(DataContext context){
+            this.context=context;
+            //this.cvRep=cvRep;
         }
 
-        public bool CVVersionExists(string id)
-        {
-             return _Context.cvVersions.Any(c => c.id == id);
+        public async Task<CV?> FindCV(string cvId){
+            return await context.cvs.FindAsync(cvId);
         }
 
-        public CVVersion GetCVVersion(string id)
-        {
-            return _Context.cvVersions.Where(e => e.id == id).FirstOrDefault();
+        public Task<List<CVVersion>> FindAllByCVId(string cvId){
+            var versions=context.cvVersions.Where(version=>version.cvId==cvId).ToList();
+            return Task.FromResult(versions);
         }
 
-
-        public ICollection<CVVersion> GetCVVersions()
-        {
-            return _Context.cvVersions.ToList();
+        public async Task<CVVersion?> findOne(string id){
+            var version=await context.FindAsync<CVVersion>(id);
+            return version;
         }
-
-        public bool save()
-        {
-             var saved = _Context.SaveChanges();
-            return saved > 0 ? true : false;
-        }
-
-        public bool updateCVVersion(CVVersion cVVersion)
-        {
-            _Context.Update(cVVersion);
-            return save();
-        }
-
     }
 }

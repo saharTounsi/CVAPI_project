@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CVAPI.Data.CVAnalysis;
 
 
 namespace CVAPI.Schemas {
@@ -12,13 +11,7 @@ namespace CVAPI.Schemas {
         public string cvId { get; set; }
 
         [Required]
-        public string fileName {get;set;}
-
-        [Required]
         public DateTime datetime { get; set; }
-
-        [Required]
-        public string path { get; set; }
     }
 }
         

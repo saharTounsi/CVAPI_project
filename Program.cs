@@ -12,9 +12,9 @@ bool isDevEnv=builder.Environment.IsDevelopment();
 bool useSwagger=builder.Configuration.GetValue("useSwagger",true);
 
 //Services
-builder.Services.AddScoped<ICVRep,CVRep>(); 
+builder.Services.AddScoped<CVRep>(); 
 builder.Services.AddScoped<UserRep>();
-builder.Services.AddScoped<ICVVersionRep,CVVersionRep>();
+builder.Services.AddScoped<CVVersionRep>();
 builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
@@ -43,6 +43,10 @@ if(isDevEnv){
 }
 app.UseMiddleware<ErrorMiddleware>();
 app.UseCors(corsPolicyName);
+app.UseStaticFiles(new StaticFileOptions(){
+    RequestPath="/api/static",
+    DefaultContentType="application/pdf",
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

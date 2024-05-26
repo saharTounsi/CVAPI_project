@@ -54,8 +54,8 @@ namespace CVAPI.Repositories
             }
         }
 
-        public Task<List<UserSchema>> GetUsers(){
-            var users=context.users.Where(user=>user.id!=null).Select(user=>new UserSchema(user)).ToList();
+        public Task<List<UserSchema>> GetUsers(string userId){
+            var users=context.users.Where(user=>user.id!=userId).Select(user=>new UserSchema(user)).ToList();
             return Task.FromResult(users);
         }
 

@@ -5,14 +5,24 @@ using CVAPI.Schemas;
 
 
 namespace CVAPI.Models {
-    public class CV:CVSchema {
+    public class CV {
         //Props
+        [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string id { get; set; }
+
         [Required]
         public string userId { get; set; }
 
         [Required]
-        public string currentVersionId { get; set; }
+        public string? name {get;set;}
 
+        [Required]
+        public DateTime datetime { get; set; }
+
+        public string? status { get; set; }
+
+        [Required]
+        public string currentVersionId { get; set; }
         
         //Relationships
         [JsonIgnore] [ForeignKey("id")]
