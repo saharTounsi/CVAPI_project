@@ -60,10 +60,18 @@ namespace CVAPI.Controllers {
         [ProducesResponseType(200,Type=typeof(CVSchema))]
         [ProducesResponseType(500)]
         public async Task<IActionResult> UploadCV([FromForm] NewCVData data){
-            var userId=context.User.FindFirstValue("id")!;
+            var isAdmin=context.User.FindFirstValue("isAdmin")=="True";
+            string? userId=null;
+            if(isAdmin){
+                var userEmail=data.userEmail;
+                if(userEmail!=null) userId=(await cvRep.FindUserByEmail(userEmail)).id;
+            }
+            if(userId==null) userId=context.User.FindFirstValue("id")!;
             CVData cvdata=await CVAnalyser.analyseCV(data.file);
             var cv=await cvRep.AddCV(userId,data.name,cvdata);
             return Ok(await cvRep.toCVSchema(cv));
         }
+
+
     }
 }

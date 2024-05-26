@@ -8,10 +8,16 @@ namespace CVAPI.Repositories {
 
         private readonly DataContext context;
         private CVVersionRep cvVersionRep;
+        public UserRep userRep;
 
-        public CVRep(DataContext dataContext,CVVersionRep cvVersionRep){
+        public CVRep(DataContext dataContext,CVVersionRep cvVersionRep,UserRep userRep){
             context=dataContext;
             this.cvVersionRep=cvVersionRep;
+            this.userRep=userRep;
+        }
+
+        public async Task<User> FindUserByEmail(string email){
+            return await userRep.FindUserByEmail(email);
         }
 
         public async Task<CV> AddCV(string userId,string cvName,CVData data){

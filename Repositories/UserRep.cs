@@ -44,6 +44,16 @@ namespace CVAPI.Repositories
             else throw new Error("email taken");
         } 
 
+        public async Task<User> FindUserByEmail(string email){
+            try{
+                var user=await context.users.FirstAsync(user=>user.email==email);
+                return user;
+            }
+            catch{
+                throw new Error("no user with such email");
+            } 
+        }
+
         public async Task<User?> GetUser(string userId){
             try{
                 var user=await context.users.FirstAsync(user=>user.id==userId);
