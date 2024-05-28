@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using CVAPI.Middlewares;
+using Services;
 
 
 namespace CVAPI.Controllers {
@@ -14,16 +15,28 @@ namespace CVAPI.Controllers {
         
         private readonly UserRep userRep;
         private readonly HttpContext context;
+        private readonly MailService mailService;
 
 
-        public UserController(UserRep userRep,IHttpContextAccessor httpContextAccessor){
+        public UserController(UserRep userRep,IHttpContextAccessor httpContextAccessor,MailService mailService){
             this.userRep=userRep;
-            this.context=httpContextAccessor.HttpContext!;           
+            this.context=httpContextAccessor.HttpContext!;
+            this.mailService=mailService; 
+        }
+
+        [HttpPost("resetpassword")] 
+        public async Task<IActionResult> ResetPassword([FromBody] string email){
+            await mailService.sendMail(new(){
+                toEmail=email,
+                subject="Dotnet MailService Test",
+                body="a7la mail",
+            });
+            return Ok(true);
         }
 
         [HttpPut("update")] [Authorize]
         [ProducesResponseType(200,Type=typeof(bool))]
-        public async Task<IActionResult>UpdateUser([FromBody] UserUpdateFields data){
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateFields data){
             var id=User.FindFirst("id")!.Value;
             var userId=data.userId??id;
             if(userId==id){

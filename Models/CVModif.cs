@@ -10,9 +10,9 @@ namespace CVAPI.Models {
 
         //Relationships
         [JsonIgnore] [ForeignKey("id")]
-        public CV cv { get; set; }
+        public CV cv {get;set;}
         
         [JsonIgnore]
-        public User user { get; set; }
+        public User user {get;set;}
     }
 }

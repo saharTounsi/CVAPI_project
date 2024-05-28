@@ -5,6 +5,7 @@ using CVAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 using CVAPI.Services;
 using CVAPI.Middlewares;
+using Services;
 
 
 var builder=WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddScoped<ICVExportRep,CVExportRep>();
 builder.Services.AddScoped<ICVModifRep,CVModifRep>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<MailService>();
 builder.Services.AddDbContext<DataContext>(options=>{
     options.UseNpgsql(builder.Configuration.GetConnectionString((isDevEnv?"Dev":"Prod")+"ConnectionString"));
 });
