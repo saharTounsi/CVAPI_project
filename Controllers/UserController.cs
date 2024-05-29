@@ -55,8 +55,10 @@ namespace CVAPI.Controllers {
         [Authorize] [Authorize(Policy="isAdmin")]
         [ProducesResponseType(200,Type=typeof(UserSchema))]
         public async Task<IActionResult>AddUser([FromBody] NewUserSchema data){
-           var user=await userRep.AddUser(data);
-           return Ok(new UserSchema(user));
+            var password=new Random().nextString(6);
+            await mailService.sendUserPassword(data.email,password);
+            var user=await userRep.AddUser(data,password);
+            return Ok(new UserSchema(user));
         }
 
         [HttpGet("{userId}")] 

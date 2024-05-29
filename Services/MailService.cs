@@ -22,6 +22,21 @@ namespace Services {
             fromAddress=new MailAddress("saharcvapi@no-reply.com","SaharCVAPI");
         }
 
+        public async Task sendUserPassword(string email,string password){
+            await this.sendMail(new(){
+                subject="Login Credentials",
+                toEmail=email,
+                body=$@"
+                    <p>Your login credentials</p>
+                    <ul>
+                        <li>Email: {email}</li>
+                        <li>Password: {password}</li>
+                    </ul>
+                ",
+                asHTML=true,
+            });
+        }
+
         public async Task<string> sendLoginOTP(string toEmail){
             string otp=new Random().nextString(5);
             MailInfo mailinfo=getLoginOTPMailInfo(otp,toEmail);

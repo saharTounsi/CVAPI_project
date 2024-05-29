@@ -37,12 +37,12 @@ namespace CVAPI.Repositories
             else throw new Error("no such user to update");
         }
 
-        public async Task<User> AddUser(NewUserSchema data){
+        public async Task<User> AddUser(NewUserSchema data,string password="1234"){
             var userEmail=data.email;
             var exists=await context.users.AnyAsync(user=>user.email==userEmail);
             if(!exists){
                 var user=new User(data);
-                user.hash=User.getHash(user);
+                user.hash=User.getHash(user,password);
                 context.Add(user);
                 await context.SaveChangesAsync();
                 return user;

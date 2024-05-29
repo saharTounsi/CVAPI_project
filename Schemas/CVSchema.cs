@@ -6,10 +6,11 @@ namespace CVAPI.Schemas {
     public class CVSchema {
         
         public CVSchema(){} 
-        public CVSchema(CV cv,CVVersion? version){
+        public CVSchema(CV cv,CVVersion? version,string? userName=null){
             this.id=cv.id;
-            this.userId=cv.userId;
             this.name=cv.name;
+            this.userId=cv.userId;
+            this.userName=userName;
             this.datetime=cv.datetime;
             if(version!=null){
                 this.data=new CVData(){
@@ -28,6 +29,8 @@ namespace CVAPI.Schemas {
 
         [Required]
         public string userId { get; set; }
+
+        public string? userName {get;set;}
 
         [Required]
         public string? name {get;set;}

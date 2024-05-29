@@ -51,8 +51,9 @@ namespace CVAPI.Repositories {
         }
 
         public async Task<CVSchema> toCVSchema(CV cv){
+            var user=await userRep.FindById(cv.userId);
             var version=await cvVersionRep.findOne(cv.currentVersionId);
-            return new CVSchema(cv,version);
+            return new CVSchema(cv,version,user.firstName+" "+user.lastName);
         }
     }
 }
