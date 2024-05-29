@@ -15,8 +15,8 @@ namespace Services {
                 Port=587,
                 EnableSsl=true,
                 Credentials=new NetworkCredential(
-                    "ahmed.ayachi@etudiant-fst.utm.tn",
-                    "yroz gjcz fxhf anxr"
+                    "sahar.tounsi@etudiant-fsegt.utm.tn",
+                    "xrse mmwe xsyh shrk"
                 ),
             };
             fromAddress=new MailAddress("saharcvapi@no-reply.com","SaharCVAPI");
