@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using CVAPI.Schemas;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +9,8 @@ namespace CVAPI.Models {
         //Props
         [Required]
         public string hash {get;set;}
+
+        public string? loginOTP {get;set;}
 
         public User(){}
         public User(NewUserSchema data):base(data){}

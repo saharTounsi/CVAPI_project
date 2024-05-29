@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
-using System.Net.Mime;
+using CVAPI.Services;
+using CVAPI.Models;
 
 
 namespace Services {
@@ -21,8 +22,11 @@ namespace Services {
             fromAddress=new MailAddress("saharcvapi@no-reply.com","SaharCVAPI");
         }
 
-        public string sendLoginVerificationCode(){
-            throw new NotImplementedException();
+        public async Task<string> sendLoginOTP(string toEmail){
+            string otp=new Random().nextString(5);
+            MailInfo mailinfo=getLoginOTPMailInfo(otp,toEmail);
+            await this.sendMail(mailinfo);
+            return otp;
         }
 
         public string sendPasswordResetLink(){
@@ -52,6 +56,27 @@ namespace Services {
             public string? subject {get;set;}
             public string body {get;set;}
             public bool asHTML {get;set;}=false;
+        }
+
+        private MailInfo getLoginOTPMailInfo(string otp,string toEmail){
+            return new MailInfo(){
+                toEmail=toEmail,
+                subject="Your Login OTP",
+                body=$@"
+                    <p>This is your login OTP: {otp}</p>
+                ",
+                asHTML=true,
+            };
+        }
+
+        private string getPasswordResetPMailBody(VerificationLink link){
+            string ipaddress=NetworkService.getLocalIPAddress();
+            return $@"
+                <a 
+                    href='{link.toURL()}' target='_blank'
+                    style='text-decoration:none;color:#262626;box-sizing:border-box;display:flex;width:fit-content;padding:8px 16px;background:linear-gradient(180deg,rgba(255,255,255,0.13) 0%,rgba(17,184,15,0.1) 100%),#ffffff;border:1px solid rgba(75,173,58,0.6);border-radius:4px' 
+                >Reset Password</a>
+            ";
         }
     }
 }

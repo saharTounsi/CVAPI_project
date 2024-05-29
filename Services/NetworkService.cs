@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 
 namespace CVAPI.Services {
-    public class SecurityService {
+    public class NetworkService {
         public static string addCors(WebApplicationBuilder builder){
             var isDevEnv=builder.Environment.IsDevelopment();
             //var clientURL=builder.Configuration.GetValue<string>($"clientURL:{(isDevEnv?"dev":"prod")}");

@@ -15,6 +15,12 @@ namespace CVAPI.Repositories
             context=dataContext;
         }
 
+        public async Task SetUserLoginOTP(User user,string otp){
+            context.Update(user);
+            user.loginOTP=otp;
+            await context.SaveChangesAsync();
+        }
+
         public async Task<bool> UpdateUser(UserUpdateFields data){
             var user=await context.FindAsync<User>(data.userId);
             if(user!=null){
@@ -44,16 +50,6 @@ namespace CVAPI.Repositories
             else throw new Error("email taken");
         } 
 
-        public async Task<User> FindUserByEmail(string email){
-            try{
-                var user=await context.users.FirstAsync(user=>user.email==email);
-                return user;
-            }
-            catch{
-                throw new Error("no user with such email");
-            } 
-        }
-
         public async Task<User?> GetUser(string userId){
             try{
                 var user=await context.users.FirstAsync(user=>user.id==userId);
@@ -69,12 +65,28 @@ namespace CVAPI.Repositories
             return Task.FromResult(users);
         }
 
+        public async Task<User> FindUserByEmail(string email){
+            try{
+                var user=await context.users.FirstAsync(user=>user.email==email);
+                return user;
+            }
+            catch{
+                throw new Error("no user with such email");
+            } 
+        }
+
         public async Task<User> FindByCredentials(UserCredentials credentials){
             string userEmail=credentials.email;
             var user=await context.users.FirstAsync(user=>user.email==userEmail);
             if((user!=null)&&User.verifyPassword(user,credentials.password)) return user;
             else throw new Error("incorrect credentials");
-        } 
+        }
+
+        public async Task<User> FindById(string userId){
+            var user=await context.FindAsync<User>(userId);
+            if(user!=null) return user;
+            else throw new Error("no such user");
+        }
 
         public async Task<User?> DeleteUser(string userId){
             var user=await context.FindAsync<User>(userId);

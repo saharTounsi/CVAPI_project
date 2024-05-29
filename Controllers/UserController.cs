@@ -23,16 +23,13 @@ namespace CVAPI.Controllers {
             this.context=httpContextAccessor.HttpContext!;
             this.mailService=mailService; 
         }
-
-        [HttpPost("resetpassword")] 
-        public async Task<IActionResult> ResetPassword([FromBody] string email){
-            await mailService.sendMail(new(){
-                toEmail=email,
-                subject="Dotnet MailService Test",
-                body="a7la mail",
-            });
-            return Ok(true);
+        
+        [HttpPost("forgotpassword")] 
+        [ProducesResponseType(200,Type=typeof(string))]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email){
+            throw new NotImplementedException();
         }
+
 
         [HttpPut("update")] [Authorize]
         [ProducesResponseType(200,Type=typeof(bool))]
@@ -96,24 +93,37 @@ namespace CVAPI.Controllers {
             return Ok(users);
         }
 
-        [HttpPost("login")]
+        [HttpPost("confirmlogin")] 
         [ProducesResponseType(200,Type=typeof(bool))]
+        public async Task<IActionResult> ConfirmLogin([FromBody] LoginConfirmData data){
+            var user=await userRep.FindById(data.userId);
+            if(data.otp==user.loginOTP){
+                var claims=new List<Claim>{
+                new(ClaimTypes.NameIdentifier,user.id),
+                new("id",user.id),
+                new("email",user.email),
+                new("isAdmin",user.isAdmin.ToString()),
+                new("role",user.role.ToString()),
+                };
+                var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
+                await context.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(identity)
+                );
+                await userRep.SetUserLoginOTP(user,null);
+                return Ok(true);
+            }
+            else throw new Error("login confirmation denied");
+        }
+
+        [HttpPost("login")]
+        [ProducesResponseType(200,Type=typeof(string))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> login([FromBody] UserCredentials data){
             var user=await userRep.FindByCredentials(data);
-            var claims=new List<Claim>{
-                new(ClaimTypes.NameIdentifier,user.id),
-                new("id",user.id),
-                new("email",data.email),
-                new("isAdmin",user.isAdmin.ToString()),
-                new("role",user.role.ToString()),
-            };
-            var identity=new ClaimsIdentity(claims,CookieAuthenticationDefaults.AuthenticationScheme);
-            await context.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(identity)
-            );
-            return Ok(true);
+            string otp=await mailService.sendLoginOTP(user.email);
+            await userRep.SetUserLoginOTP(user,otp);
+            return Ok(user.id);
         }
     }
 }

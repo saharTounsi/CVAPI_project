@@ -27,7 +27,7 @@ builder.Services.AddDbContext<DataContext>(options=>{
 if(isDevEnv&&useSwagger) builder.Services.AddSwaggerGen();
 AuthService.addAuthentication(builder);
 builder.Services.AddControllers();
-var corsPolicyName=SecurityService.addCors(builder);
+var corsPolicyName=NetworkService.addCors(builder);
 //builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

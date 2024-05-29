@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using CVAPI.Services;
 
 
-namespace Models {
-    public class VerficationLink {
+namespace CVAPI.Models {
+    public class VerificationLink {
         
         [Key] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string id {get;set;}
@@ -18,7 +18,7 @@ namespace Models {
         public enum Type {PasswordReset};
 
         public string toURL(){
-            string ipaddress=SecurityService.getLocalIPAddress();
+            string ipaddress=NetworkService.getLocalIPAddress();
             return $"http://{ipaddress}:8080/user/passwordreset?id={id}&type={type}&userId={userId}";
         }
     }
