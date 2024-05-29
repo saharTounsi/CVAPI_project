@@ -9,6 +9,7 @@ namespace CVAPI.Schemas {
         public CVSchema(CV cv,CVVersion? version,string? userName=null){
             this.id=cv.id;
             this.name=cv.name;
+            this.status=cv.status;
             this.userId=cv.userId;
             this.userName=userName;
             this.datetime=cv.datetime;

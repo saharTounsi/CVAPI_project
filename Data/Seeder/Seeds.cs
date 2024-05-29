@@ -6,7 +6,6 @@ namespace CVAPI.Data.Seeder {
         public static List<User> users=new List<User>(){
             new(){
                 id="0",
-                isAdmin=true,
                 firstName="sahar",
                 lastName="tounsi",
                 email="sahartounsi21@gmail.com",
@@ -14,11 +13,10 @@ namespace CVAPI.Data.Seeder {
             },
             new(){
                 id="1",
-                isAdmin=false,
                 firstName="ahmed",
                 lastName="ayachi",
                 email="aayachi032@gmail.com",
-                role=User.Role.Employee,
+                role=User.Role.Manager,
             },
             new(){
                 id="2",
@@ -29,7 +27,6 @@ namespace CVAPI.Data.Seeder {
             },
             new(){
                 id="3",
-                isActive=false,
                 firstName="youssef",
                 lastName="jouini",
                 email="jouini9youssef@gmail.com",
@@ -40,7 +37,7 @@ namespace CVAPI.Data.Seeder {
             return user;
         }).ToList();
 
-         public static List<CV> cvs=new List<CV>(){
+        public static List<CV> cvs=new List<CV>(){
             new(){
                 id="0",
                 name="cv_0",
@@ -54,7 +51,6 @@ namespace CVAPI.Data.Seeder {
                 userId="1",
                 datetime=DateTime.UtcNow,
                 currentVersionId="1",
-                
             },
             new(){
                 id="2",
@@ -65,22 +61,22 @@ namespace CVAPI.Data.Seeder {
             },
 
         };
-       public static List<CVExport> cvExports=new List<CVExport>(){
+        public static List<CVExport> cvExports=new List<CVExport>(){
             new(){
                 id="0",
                 name="sahar Tounsi",
                 versionId="0",
                 exporterId="0",
-               datetime=DateTime.UtcNow,
+                datetime=DateTime.UtcNow,
             },
             new(){
-               id="1",
-               name="samar Tounsi",
-               versionId="1",
-               exporterId="1",
-               datetime=DateTime.UtcNow,
+                id="1",
+                name="samar Tounsi",
+                versionId="1",
+                exporterId="1",
+                datetime=DateTime.UtcNow,
             },
-             new(){
+            new(){
                 id="2",
                 name="rahma omran",
                 versionId="2",

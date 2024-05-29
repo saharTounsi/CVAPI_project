@@ -10,8 +10,15 @@ namespace CVAPI.Schemas {
         [Key] [Required] [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string id {get;set;}
 
-        [DefaultValue(false)]
-        public bool isAdmin {get;set;}=false;
+        private bool? _isAdmin {get;set;}=null;
+        public bool isAdmin {
+            get { 
+                return _isAdmin??role==User.Role.Manager;
+            }
+            set {
+                _isAdmin=value;
+            }
+        }
 
         [DefaultValue(true)]
         public bool isActive {get;set;}=true;
