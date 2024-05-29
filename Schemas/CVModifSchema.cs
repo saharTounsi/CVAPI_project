@@ -12,7 +12,7 @@ namespace CVAPI.Schemas {
         [Required]
         public string editorId { get; set; }
 
-        public DateTime datetime { get; set; }
+        public DateTime datetime {get;set;}=DateTime.UtcNow;
 
     }
 }

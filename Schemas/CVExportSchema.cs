@@ -14,7 +14,7 @@ namespace CVAPI.Schemas {
       
 
         [Required]
-        public DateTime datetime { get; set; }
+        public DateTime datetime {get;set;}=DateTime.UtcNow;
 
     }
     

@@ -17,7 +17,7 @@ namespace CVAPI.Models {
         public string? name {get;set;}
 
         [Required]
-        public DateTime datetime { get; set; }
+        public DateTime datetime {get;set;}=DateTime.UtcNow;
 
         public string? status { get; set; }
 

@@ -33,7 +33,7 @@ namespace CVAPI.Schemas {
         public string? name {get;set;}
 
         [Required]
-        public DateTime datetime { get; set; }
+        public DateTime datetime {get;set;}
 
         public string? status { get; set; }
 

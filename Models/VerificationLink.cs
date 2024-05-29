@@ -13,7 +13,7 @@ namespace CVAPI.Models {
 
         public Type type {get;set;}
 
-        public DateTime expiryDateTime {get;set;}
+        public DateTime expiryDateTime {get;set;}=DateTime.UtcNow;
 
         public enum Type {PasswordReset};
 
