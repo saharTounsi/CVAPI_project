@@ -19,7 +19,7 @@ namespace CVAPI.Models {
         [Required]
         public DateTime datetime {get;set;}=DateTime.UtcNow;
 
-        public string? status {get;set;}="active";
+        public string status {get;set;}="active";
 
         [Required]
         public string currentVersionId { get; set; }
