@@ -125,7 +125,7 @@ namespace CVAPI.Controllers {
             var user=await userRep.FindByCredentials(data);
             string otp=await mailService.sendLoginOTP(user.email);
             await userRep.SetUserLoginOTP(user,otp);
-            return Ok(user.id);
+            return Ok($"\"{user.id}\"");
         }
     }
 }
